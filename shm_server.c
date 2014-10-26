@@ -98,6 +98,7 @@ int main(int argc, char* argv[]) {
 	    			// find word in dictttt!
 	    			if ((index = contains(dict, word)) != -1) {
 	    				times = ++dict.items[index].occurance;
+	    				printf("yes! i do >///<\n");
 	    			}
 
 	    			// dictionary full
@@ -110,6 +111,7 @@ int main(int argc, char* argv[]) {
 						strcpy(dict.items[index].word, word);
 						times = ++dict.items[index].occurance;
 						dict.index += 1;
+						printf("oh no = =\n");
 	    			}
 
 	    			// dictionary not full, just append the word
@@ -118,9 +120,19 @@ int main(int argc, char* argv[]) {
 	    				strcpy(dict.items[index].word, word);
 	    				times = ++dict.items[index].occurance;
 	    				dict.index += 1;
+	    				printf("oh no = =\n");
 	    			}
 
-	    			printf("%s: %d times\n", word, times);
+	    		}
+
+	    		else if (spl[0] == '$') {
+	    			printf("\n\n%s\n", "TABLE");
+	    			printf("%10s%15s\n", "word", "occurance");
+	    			int i;
+	    			for (i = 0; i < dict.index; i++) {
+	    				printf("%10s%15d\n", dict.items[i].word, dict.items[i].occurance);
+	    			}
+	    			printf("\n\n");
 	    		}
 
 	    	    spl = strtok(NULL, " ");
