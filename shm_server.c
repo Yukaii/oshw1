@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
 	    		}
 
 	    		else if (spl[0] == '$') {
-	    			printf("\n\n%s\n", "TABLE");
+	    			printf("\n\n%15s\n", "TABLE");
 	    			printf("%10s%15s\n", "word", "occurance");
 	    			int i;
 	    			for (i = 0; i < dict.index; i++) {

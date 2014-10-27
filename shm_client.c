@@ -6,10 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-void main(int argc, char* argv[]) {
+#define shmsize 20
+
+int main(int argc, char* argv[]) {
 	key_t shmkey; /* key to be passed to shmget() */ 
 	int shmid; /* return value from shmget() */ 
-	int size = 20; /* size to be passed to shmget() */ 
 	pid_t pid;
 	char* shm;
 
@@ -18,7 +19,7 @@ void main(int argc, char* argv[]) {
 		exit(1);
 	}
 
-	if ((shmid = shmget(shmkey, size,  IPC_CREAT | 0600)) < 0) {
+	if ((shmid = shmget(shmkey, shmsize,  IPC_CREAT | 0600)) < 0) {
 		printf("error create shared memory: %d\n", shmid);
 		exit(1);
 	}
@@ -28,7 +29,8 @@ void main(int argc, char* argv[]) {
 		exit(1);
 	}
 
-	while(gets(shm) != EOF) {
+	while(gets(shm)) {
 		printf("> ");
 	}
+	return 0;
 }
