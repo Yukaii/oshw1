@@ -1,36 +1,36 @@
 #include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <sys/mman.h>
 #include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <stdlib.h>
 
-#define shmsize 20
 
 int main(int argc, char* argv[]) {
-	key_t shmkey; /* key to be passed to shmget() */ 
-	int shmid; /* return value from shmget() */ 
-	pid_t pid;
-	char* shm;
 
-	if ((shmkey = ftok(".", 'a')) == (key_t) -1) {
-		printf("key generate error\n");
-		exit(1);
+	const int SIZE = 4096;
+	const char *name = "dict";
+	int shm_fd;
+	void *ptr;
+	char buf[1000] = {0};
+
+	shm_fd = shm_open(name, O_CREAT|O_RDWR, 0666);
+	ftruncate(shm_fd, SIZE);
+
+	ptr = mmap(0, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+	if (ptr == MAP_FAILED) {
+		printf("Map failed\n");
+		return -1;
 	}
 
-	if ((shmid = shmget(shmkey, shmsize,  IPC_CREAT | 0600)) < 0) {
-		printf("error create shared memory: %d\n", shmid);
-		exit(1);
-	}
-
-	if ((shm = (char*)shmat(shmid, NULL, 0)) == (char *) -1) {
-		printf("shmat error\n");
-		exit(1);
-	}
-
-	while(gets(shm)) {
+	do {
 		printf("> ");
-	}
+		gets(buf);
+		sprintf(ptr, "%s", buf);
+	} while(1);
+
 	return 0;
 }

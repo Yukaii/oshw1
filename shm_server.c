@@ -1,10 +1,13 @@
 #include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <sys/mman.h>
 #include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <stdlib.h>
+
 
 typedef struct {
 	int occurance;
@@ -52,29 +55,25 @@ void morespace(dictionary* dict, int moresize) {
 }
 
 int main(int argc, char* argv[]) {
-	key_t shmkey; /* key to be passed to shmget() */ 
-	int shmid; /* return value from shmget() */ 
-	int size = 20; /* size to be passed to shmget() */ 
-	pid_t pid;
-	char* shm;
+	
+	const int SIZE = 4096;
+	const char *name = "dict";
+	int shm_fd;
+	void *ptr;
+	char buf[1000] = {0};
 
-	if ((shmkey = ftok(".", 'a')) == (key_t) -1) {
-		printf("key generate error\n");
-		exit(1);
-	}
+	shm_fd = shm_open(name, O_CREAT|O_RDWR, 0666);
+	ftruncate(shm_fd, SIZE);
 
-	if ((shmid = shmget(shmkey, size,  IPC_CREAT | 0600)) < 0) {
-		printf("error create shared memory: %d\n", shmid);
-		exit(1);
-	}
-
-	if ((shm = (char*)shmat(shmid, NULL, 0)) == (char *) -1) {
-		printf("shmat error\n");
-		exit(1);
+	ptr = mmap(0, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+	if (ptr == MAP_FAILED) {
+		printf("Map failed\n");
+		return -1;
 	}
 
 	// main program starts here haha
 	// -----------------------------
+	char* shm = (char*) ptr;
 
 	dictionary dict;
 	int buffersize = 20;
@@ -98,7 +97,7 @@ int main(int argc, char* argv[]) {
 	    			// find word in dictttt!
 	    			if ((index = contains(dict, word)) != -1) {
 	    				times = ++dict.items[index].occurance;
-	    				printf("yes! i do >///<\n");
+	    				printf("yes\n");
 	    			}
 
 	    			// dictionary full
@@ -111,7 +110,7 @@ int main(int argc, char* argv[]) {
 						strcpy(dict.items[index].word, word);
 						times = ++dict.items[index].occurance;
 						dict.index += 1;
-						printf("oh no = =\n");
+						printf("no\n");
 	    			}
 
 	    			// dictionary not full, just append the word
@@ -120,7 +119,7 @@ int main(int argc, char* argv[]) {
 	    				strcpy(dict.items[index].word, word);
 	    				times = ++dict.items[index].occurance;
 	    				dict.index += 1;
-	    				printf("oh no = =\n");
+	    				printf("no\n");
 	    			}
 
 	    		}
@@ -140,5 +139,6 @@ int main(int argc, char* argv[]) {
 	    	shm[0] = '\0';
 	    }
 	}
+_OUT:
 	return 0;
 }
