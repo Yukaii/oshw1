@@ -6,8 +6,10 @@
 ##Usage
 compile source code using gcc: 	
 
-	gcc shm_client.c -o shm_client
-	gcc shm_server.c -o shm_server
+	gcc shm_client.c -o shm_client -lrt
+	gcc shm_server.c -o shm_server -lrt
+
+note: if you're using OSX, then you can ignore `-lrt` flag
 
 and start both program
 
@@ -25,4 +27,4 @@ then get the result by entering '$' sign
 
 	> $
 
-now you get your word frequency.
+now you get your word frequency on server side terminal
