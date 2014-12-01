@@ -54,8 +54,31 @@ void morespace(dictionary* dict, int moresize) {
 	}
 }
 
-int main(int argc, char* argv[]) {
+void swapitem(dictionary* dict, int first, int second) {
+	item c = dict->items[first];
+	dict->items[first] = dict->items[second];
+	dict->items[second] = c;
+	return;
+}
+
+void mybubblesort(dictionary* dict) {
 	
+	int i, j;
+	int size = dict->index;
+	if (size == 0)
+		return;
+	for ( i = size-1; i >= 2; i-- ) {
+		for ( j = 0; j <= i-1; j++) {
+			if ( dict->items[ j ].occurance > dict->items[ j+1 ].occurance) {
+				// printf("%s, %s\n", dict->items[ j ].word, dict->items[ j+1 ].word);
+				swapitem(dict, j, j+1);
+			}
+		}
+	}
+}
+
+int main(int argc, char* argv[]) {
+
 	const int SIZE = 4096;
 	const char *name = "dict";
 	int shm_fd;
@@ -88,20 +111,29 @@ int main(int argc, char* argv[]) {
 
 	    	while(spl != NULL) {
 	    		// input in correct form, %word
-	    		if (spl[0] == '%') {
+	    		if (spl[0] != '$') {
 	    			int index;
 	    			int times;
+	    			char* word;
+	    			int output_flag = 0;
 
-	    			char* word = spl + 1; //skip %
+	    			if (spl[0] == '%') {
+	    				word = spl + 1; //skip %
+	    				output_flag = 1;
+	    			}
+	    			else
+	    				word = spl;
 
 	    			// find word in dictttt!
 	    			if ((index = contains(dict, word)) != -1) {
 	    				times = ++dict.items[index].occurance;
-	    				printf("yes\n");
+
+	    				if ( output_flag == 1 )
+	    					printf("yes\n");
 	    			}
 
 	    			// dictionary full
-	    			else if (dict.index == dict.length ) {	    				
+	    			else if ( dict.index == dict.length ) {	    				
 	    				index = dict.index;
 
 	    				// expand the dict
@@ -110,7 +142,9 @@ int main(int argc, char* argv[]) {
 						strcpy(dict.items[index].word, word);
 						times = ++dict.items[index].occurance;
 						dict.index += 1;
-						printf("no\n");
+
+						if (output_flag == 1)
+							printf("no\n");
 	    			}
 
 	    			// dictionary not full, just append the word
@@ -119,26 +153,33 @@ int main(int argc, char* argv[]) {
 	    				strcpy(dict.items[index].word, word);
 	    				times = ++dict.items[index].occurance;
 	    				dict.index += 1;
-	    				printf("no\n");
-	    			}
 
+	    				if (output_flag == 1)
+	    					printf("no\n");
+	    			}
 	    		}
 
-	    		else if (spl[0] == '$') {
+	    		// spl[0] == '$'
+	    		else {
 	    			printf("\n\n%15s\n", "TABLE");
 	    			printf("%10s%15s\n", "word", "occurance");
 	    			int i;
+	    			mybubblesort(&dict);
 	    			for (i = 0; i < dict.index; i++) {
 	    				printf("%10s%15d\n", dict.items[i].word, dict.items[i].occurance);
 	    			}
 	    			printf("\n\n");
 	    		}
 
+
+
 	    	    spl = strtok(NULL, " ");
 	    	}
-	    	shm[0] = '\0';
+	    	// shm[0] = '\0';
+	    	char* zerooo = "";
+	    	sprintf(shm, "%s", zerooo);
 	    }
 	}
-_OUT:
+	
 	return 0;
 }
