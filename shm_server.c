@@ -67,7 +67,7 @@ void mybubblesort(dictionary* dict) {
 	int size = dict->index;
 	if (size == 0)
 		return;
-	for ( i = size-1; i >= 2; i-- ) {
+	for ( i = size-1; i >= 1; i-- ) {
 		for ( j = 0; j <= i-1; j++) {
 			if ( dict->items[ j ].occurance > dict->items[ j+1 ].occurance) {
 				// printf("%s, %s\n", dict->items[ j ].word, dict->items[ j+1 ].word);
